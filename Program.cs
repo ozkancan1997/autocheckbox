@@ -2,7 +2,7 @@
 
 Ruleset rs = new Ruleset();
 
-
+// Unit Test 1
 // rs.AddDep('a', 'b');
 // rs.AddDep('b', 'c');
 // rs.AddDep('c', 'a');
@@ -29,18 +29,28 @@ Ruleset rs = new Ruleset();
 // ops.Toggle('b');
 // ops.StringSlice();
 
-rs.AddDep('a', 'b');
-rs.AddDep('a', 'c');
+// Unit Test 2
 
-rs.AddConflict('b', 'd');
-rs.AddConflict('b', 'e');
+// rs.AddDep('a', 'b');
+// rs.AddDep('a', 'c');
 
-Console.WriteLine(rs.isCoherent());
+// rs.AddConflict('b', 'd');
+// rs.AddConflict('b', 'e');
 
-Options ops = new Options(rs);
+// Console.WriteLine(rs.isCoherent());
 
-ops.Toggle('d'); ops.Toggle('e'); ops.Toggle('a');
-ops.StringSlice();
+// Options ops = new Options(rs);
+
+// ops.Toggle('d'); ops.Toggle('e'); ops.Toggle('a');
+// ops.StringSlice();
+
+// Unit Test 3
+// rs.AddDep('a', 'b');
+// rs.AddDep('b', 'c');
+
+// Options opts = new Options(rs);
+// opts.Toggle('c');
+// opts.StringSlice();
 
 public class Ruleset{
 
@@ -132,32 +142,10 @@ public class Options{
     public void Toggle(char opt){
         if(!optionList.Contains(opt)){
             optionList.Add(opt);
-            if(ruleset.dependencies.Keys.Contains(opt)){
-                foreach(char d in ruleset.dependencies[opt]){
-                    if(!optionList.Contains(d)){
-                        Toggle(d);
-                    }
-                    
-                }
-            }
-
-        foreach(string c in ruleset.conflicts){
-            if(c[0]==opt && optionList.Contains(c[1])){
-                Toggle(c[1]);
-            }else if(c[1]==opt && optionList.Contains(c[0])){
-                Toggle(c[0]);
-            }
-        }
-        return;
-        }
-
-        if(optionList.Contains(opt)){
-            optionList.Remove(opt);
-            foreach(var dep in ruleset.dependencies){
-                if(dep.Value.Contains(opt)){
-                    optionList.Remove(dep.Key);
-                }
-            }
+            resolveConflicts(opt);
+            resolveDependencies(opt);
+        }else{
+            removeByDependencies(opt);
         }
 
     }
@@ -171,5 +159,37 @@ public class Options{
         return temp;
     }
 
+    private void resolveConflicts(char opt){
+        foreach(string c in ruleset.conflicts){
+            if(c[0]==opt && optionList.Contains(c[1])){
+                removeByDependencies(c[1]);
+            }else if(c[1]==opt && optionList.Contains(c[0])){
+                removeByDependencies(c[0]);
+            }
+        }
+    }
 
+    private void resolveDependencies(char opt){
+
+        if(ruleset.dependencies.Keys.Contains(opt)){
+            foreach(char d in ruleset.dependencies[opt]){
+                if(!optionList.Contains(d)){
+                    optionList.Add(d);
+                    resolveConflicts(d);
+                }  
+            }
+        }
+    }
+
+    private void removeByDependencies(char opt){
+
+        if(optionList.Contains(opt)){
+        optionList.Remove(opt);
+        foreach(var dep in ruleset.dependencies){
+            if(dep.Value.Contains(opt)){
+                optionList.Remove(dep.Key);
+            }
+        }            
+        }
+    }
 }
