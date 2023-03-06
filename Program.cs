@@ -106,7 +106,7 @@ public class Options{
             resolveConflicts(opt); //Removes its conflicts
             resolveDependencies(opt); //Also adds it's dependencies
         }else{
-            removeByDependencies(opt); //If option is selected, deselects it
+            removeWithDependents(opt); //If option is selected, deselects it
         }
 
     }
@@ -130,9 +130,9 @@ public class Options{
     private void resolveConflicts(char opt){
         foreach(string c in ruleset.conflicts){
             if(c[0]==opt && optionList.Contains(c[1])){ //if the option is the first char
-                removeByDependencies(c[1]);
+                removeWithDependents(c[1]);
             }else if(c[1]==opt && optionList.Contains(c[0])){ //or the second
-                removeByDependencies(c[0]);
+                removeWithDependents(c[0]);
             }
         }
     }
@@ -150,7 +150,7 @@ public class Options{
     }
 
     //Deselect an option and deselects the other options that depends on that one option
-    private void removeByDependencies(char opt){
+    private void removeWithDependents(char opt){
 
         if(optionList.Contains(opt)){
             optionList.Remove(opt);
